@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>成績管理系統</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", Arial, sans-serif;
+      background: #f5f7fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #ffffff;
+      width: 100%;
+      max-width: 800px;
+      padding: 28px;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 22px;
+      text-align: center;
+    }
+
+    .desc {
+      text-align: center;
+      color: #666;
+      margin-bottom: 18px;
+      font-size: 14px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 260px;
+      padding: 12px;
+      font-size: 14px;
+      font-family: monospace;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 14px;
+      padding: 12px 18px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      background: #4f8cff;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #3f7ae0;
+    }
+
+    .output {
+      margin-top: 18px;
+      background: #f8f9fb;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      border: 1px solid #ddd;
+    }
+
+    .tip {
+      font-size: 13px;
+      color: #555;
+      margin-top: 10px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h1>成績管理系統</h1>
+  <div class="desc">請貼上學生資料（CSV 格式），系統會自動產生成績資料檔</div>
+
+  <textarea id="input" placeholder="範例：
+身分證後5碼,姓名,小考,作業,平均,加分,期中1,期中2,期末,總成績
+12345,王小明,60,80,70,5,72,68,75,73
+67890,李小華,55,70,63,3,60,58,62,61"></textarea>
+
+  <button onclick="generate()">產生資料檔</button>
+
+  <div id="output" class="output"></div>
+
+  <div class="tip">
+    使用方式：
+    <br>1. 將 Excel 另存成 CSV
+    <br>2. 複製貼上到上方
+    <br>3. 點「產生資料檔」
+    <br>4. 將輸出的內容存成 <b>data.json</b>
+    <br>5. 上傳到 GitHub，學生頁會自動更新
+  </div>
+</div>
+
+<script>
+function generate() {
+  const text = document.getElementById("input").value.trim();
+  const output = document.getElementById("output");
+
+  if (!text) {
+    output.textContent = "請先貼上資料";
+    return;
+  }
+
+  const lines = text.split(/\r?\n/);
+  const headers = lines[0].split(",");
+  const data = {};
+
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(",");
+    if (cols.length < 10) continue;
+
+    const id = cols[0].trim();
+    data[id] = {
+      name: cols[1].trim(),
+      quiz: Number(cols[2]),
+      hw: Number(cols[3]),
+      avg: Number(cols[4]),
+      bonus: Number(cols[5]),
+      mid1: Number(cols[6]),
+      mid2: Number(cols[7]),
+      final: Number(cols[8]),
+      total: Number(cols[9])
+    };
+  }
+
+  output.textContent = JSON.stringify(data, null, 2);
+}
+</script>
+
+</body>
+</html>
